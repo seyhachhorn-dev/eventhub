@@ -13,22 +13,22 @@ const routes :RouteRecordRaw[] = [
         component: DashboardLayout,
         children: [
             {
-                path: "",
+                path: "/",
                 name: "dashboard",
                 component: DashboardView,
             },
             {
-                path: "events",
+                path: "/events",
                 name: "Events",
                 component: EventView,
             },
             {
-                path: "venues",
+                path: "/venues",
                 name: "Venues",
                 component: VenueView,
             },
             {
-                path: "attendees",
+                path: "/attendees",
                 name: "Attendees",
                 component: AttendeeView,    
             }
