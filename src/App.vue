@@ -1,8 +1,12 @@
+<template>
+  <router-view />
+</template>
+
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import DashboardLayout from './layout/DashboardLayout.vue';
 </script>
 
-<template>
-  <DashboardLayout/>
-</template>
+<style>
+* {
+  font-family: 'Fira Sans', sans-serif;
+}
+</style>
