@@ -1,7 +1,7 @@
 <template>
   <div class="p-8">
     <div class="flex items-center justify-between">
-      <div class="grid md:grid-cols-2">
+      <div>
         <h2 class="text-4xl font-bold">Events</h2>
         <p class="text-gray-500 mt-2">Manage your events and registrations</p>
       </div>
