@@ -7,7 +7,7 @@
             </div>
         </div>
 
-        <div class="m-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <Card>
                 <CardHeader>
                     <div class="flex items-center justify-between">
@@ -73,14 +73,57 @@
 
 
         </div>
+
+        <div class="mt-5">
+
+            <div class="rounded-2xl border bg-white p-4 shadow-sm">
+                <h2 class="text-lg font-semibold mb-4">Recent Events</h2>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>#</TableHead>
+                            <TableHead>Event Name</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="event in events" :key="event.id">
+                            <TableCell>{{ event.id }}</TableCell>
+                            <TableCell>{{ event.name }}</TableCell>
+                            <TableCell>{{ event.date }}</TableCell>
+                            <TableCell>{{ event.status }}</TableCell>
+                        </TableRow>
+                    </TableBody>
+
+                </Table>
+            </div>
+
+
+        </div>
     </main>
 </template>
 
 <script setup lang="ts">
-import Button from '@/components/ui/button/Button.vue'
 
+
+const events = [
+  { id: 1, name: 'Tech Meetup', date: '2026-03-20', status: 'Upcoming' },
+  { id: 2, name: 'Vue Workshop', date: '2026-03-22', status: 'Open' },
+  { id: 3, name: 'Design Talk', date: '2026-03-25', status: 'Closed' },
+]
+
+
+import Button from '@/components/ui/button/Button.vue'
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '@/components/ui/card/CardContent.vue';
 import CardHeader from '@/components/ui/card/CardHeader.vue';
 import CardTitle from '@/components/ui/card/CardTitle.vue';
+import Table from '@/components/ui/table/Table.vue';
+import TableBody from '@/components/ui/table/TableBody.vue';
+import TableCaption from '@/components/ui/table/TableCaption.vue';
+import TableCell from '@/components/ui/table/TableCell.vue';
+import TableHead from '@/components/ui/table/TableHead.vue';
+import TableHeader from '@/components/ui/table/TableHeader.vue';
+import TableRow from '@/components/ui/table/TableRow.vue';
 </script>
