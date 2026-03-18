@@ -5,7 +5,57 @@
         <h2 class="text-4xl font-bold">Events</h2>
         <p class="text-gray-500 mt-2">Manage your events and registrations</p>
       </div>
-      <Button variant="outline">+ Create Event</Button>
+      <Dialog v-model:open="open">
+        <DialogTrigger>
+          <Button variant="outline">+ Create Event</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create new event</DialogTitle>
+            <DialogDescription>Add a new event here.</DialogDescription>
+          </DialogHeader>
+
+
+
+          <div calss="grid gap4 py-4">
+            <div class="grid gap2">
+              <Label for="eventName">Event Name</Label>
+              <Input id="eventName" v-model="formCreateRequest.eventName" placeholde="Enter event name" type="text" />
+            </div>
+
+            <div class="grid gap-2">
+              <Label for="eventDate">Event Date</Label>
+              <Input id="eventDate" v-model="formCreateRequest.eventDate" type="datetime-local" />
+            </div>
+
+
+            <div class="grid gap-2">
+              <Label for="eventDate">Venue</Label>
+              <Input id="eventDate" v-model="formCreateRequest.venueId" type="number" placeholder="Enter venue id" />
+            </div>
+
+
+            <div class="grid gap-2">
+              <Label for="eventDate">Attendees</Label>
+              <Input id="eventDate" v-model="formCreateRequest.attendeesInput" type="string"
+                placeholder="Example: 1,2,3" />
+            </div>
+          </div>
+
+          <p v-if="submitError" class="text-sm text-red-500">
+            {{ submitError }}
+          </p>
+
+          <DialogFooter>
+
+            <Button variant="outline" @click="open = false">Cancel</Button>
+            <Button @click="handleCreateEvent" :disabled="isSumitting">Save</Button>
+
+          </DialogFooter>
+
+        </DialogContent>
+
+      </Dialog>
     </div>
     <!-- search -->
     <div class="relative max-w-sm mt-5">
@@ -47,7 +97,7 @@
 
 <script setup lang="ts">
 
-import type { EventItem } from "@/types/event";
+import type { EventItem, CreateEventRequest } from "@/types/event";
 import Table from '@/components/ui/table/Table.vue';
 import TableBody from '@/components/ui/table/TableBody.vue';
 import TableCell from '@/components/ui/table/TableCell.vue';
@@ -60,6 +110,14 @@ import { Search } from 'lucide-vue-next';
 import { onMounted, ref, computed, watch } from 'vue';
 import getAllEvent from '@/services/event/getAllEvent';
 import formatDate from "@/services/formatDate";
+import Dialog from "@/components/ui/dialog/Dialog.vue";
+import DialogTrigger from "@/components/ui/dialog/DialogTrigger.vue";
+import DialogContent from "@/components/ui/dialog/DialogContent.vue";
+import DialogHeader from "@/components/ui/dialog/DialogHeader.vue";
+import DialogTitle from "@/components/ui/dialog/DialogTitle.vue";
+import DialogDescription from "@/components/ui/dialog/DialogDescription.vue";
+import DialogFooter from "@/components/ui/dialog/DialogFooter.vue";
+import createEvent from "@/services/event/createEvent";
 
 
 const searchQuery = ref('');
@@ -67,9 +125,66 @@ const events = ref<EventItem[]>([])
 const isLoading = ref<boolean>(false)
 const isError = ref<string | null>(null)
 const page = ref<number>(1)
+const isSumitting = ref<boolean>(false)
+const submitError = ref<string | null>(null)
+const open = ref(false)
+
+const formCreateRequest = ref({
+  eventName: '',
+  eventDate: '',
+  venueId: 0,
+  attendeesInput: ''
+})
 
 
 
+const handleCreateEvent = async () => {
+
+  try {
+    isSumitting.value = true;
+    submitError.value = null;
+    const raw = formCreateRequest.value.attendeesInput;
+
+    console.log('raw input :', raw);
+    console.log('type of raw :', typeof raw);
+
+
+
+    const payload: CreateEventRequest = {
+      eventName: formCreateRequest.value.eventName,
+      eventDate: new Date(formCreateRequest.value.eventDate).toISOString(),
+      venueId: Number(formCreateRequest.value.venueId),
+      attendeesId: raw
+        .split(',')
+        .map(id => Number(id.trim()))
+        .filter(id => !Number.isNaN(id) && id > 0)
+    }
+
+    const rs = await createEvent(payload);
+    console.log('created event:', rs)
+
+
+    open.value = false;
+    await fetchEvents();
+
+    formCreateRequest.value = {
+      eventName: '',
+      eventDate: '',
+      venueId: 0,
+      attendeesInput: '',
+    }
+
+
+  } catch (e) {
+    console.log(e);
+    submitError.value = 'Failed to create event'
+
+  } finally {
+    isSumitting.value = false;
+  }
+
+
+}
 
 const fetchEvents = async () => {
   try {
