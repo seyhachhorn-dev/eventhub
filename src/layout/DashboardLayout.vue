@@ -9,7 +9,7 @@
             <AppHeader />
             
             <!-- Content -->
-            <main class="flex-1 overflow-auto p-6 md:p-8">
+            <main class="flex-1 overflow-auto p-6 md:p-8 bg-background">
                  <router-view />
             </main>
         </div>

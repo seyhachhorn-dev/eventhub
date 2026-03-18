@@ -1,14 +1,14 @@
 <template>
-    <main class="max-w-10xl min-h-screen ">
+    <main class="w-full min-h-screen text-foreground">
         <div class="flex">
             <div>
-                <h1 class="text-4xl font-bold">Dashboard</h1>
-                <p class="text-gray-500 mt-2">Manage your events and registrations</p>
+                <h1 class="text-4xl text-foreground font-bold">Dashboard</h1>
+                <p class="text-muted-foreground mt-2">Manage your events and registrations</p>
             </div>
         </div>
 
         <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Card>
+            <Card class="bg-card text-card-foreground border-border">
                 <CardHeader>
                     <div class="flex items-center justify-between">
                         <CardTitle class="text-2xl">Total Events</CardTitle>
@@ -73,12 +73,10 @@
 
 
         </div>
-
         <div class="mt-5">
-
-            <div class="rounded-2xl border bg-white p-4 shadow-sm">
+            <div class="rounded-2xl border bg-background text-foreground p-4 shadow-sm">
                 <h2 class="text-lg font-semibold mb-4">Recent Events</h2>
-                <Table>
+                <Table class="bg-background text-foreground">
                     <TableHeader>
                         <TableRow>
                             <TableHead>#</TableHead>
@@ -112,7 +110,6 @@ const events = [
   { id: 2, name: 'Vue Workshop', date: '2026-03-22', status: 'Open' },
   { id: 3, name: 'Design Talk', date: '2026-03-25', status: 'Closed' },
 ]
-
 
 import Button from '@/components/ui/button/Button.vue'
 import Card from '@/components/ui/card/Card.vue';

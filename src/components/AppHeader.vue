@@ -1,9 +1,12 @@
 <template>
-    <header class="bg-white border-b border-gray-200 flex items-center justify-between px-6 py-4 shadow-sm">
+    <header class="bg-background border-b border-gray-200 flex items-center justify-between px-6 py-[16.5px] shadow-sm">
         <div class="flex items-center">
-            <h2 class="text-xl font-semibold text-gray-800">{{ pageTitle }}</h2>
+            <h2 class="text-xl font-semibold text-foreground">{{ pageTitle }}</h2>
         </div>
         <div class="flex items-center gap-4">
+            <Button @click="mode = mode === 'dark' ? 'light' : 'dark'">
+                {{ mode=== 'dark' ? "LightMode" : "DarkMode" }}
+            </Button>
             <button class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 title="Notifications">
                 <span class="material-symbols-outlined">
@@ -30,6 +33,9 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { watch } from 'vue'
+import { useColorMode } from '@vueuse/core'
+import Button from './ui/button/Button.vue';
+const mode = useColorMode()
 
 
 const pageTitle = ref('Dashboard');
