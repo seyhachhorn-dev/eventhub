@@ -73,20 +73,38 @@
               <TableHead>Event Name</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <p v-if="isLoading">Loading...</p>
-            <p v-if="isError">{{ isError }}</p>
+            <TableRow v-if="isLoading">
+              <TableCell col-span-4>
+                Loading...
+              </TableCell>
+            </TableRow>
+
+            <TableRow v-else-if="isError">
+              <TableCell colspan="4">{{ isError }}</TableCell>
+            </TableRow>
+
+            <TableBody v-else-if="searchByEventName.length === 0">
+              <TableCell col-span-4>event not found.</TableCell>
+            </TableBody>
 
             <TableRow v-for="event in searchByEventName" :key="event.eventId">
               <TableCell>{{ event.eventId }}</TableCell>
               <TableCell>{{ event.eventName }}</TableCell>
               <TableCell> {{ formatDate(event.eventDate) }} </TableCell>
               <TableCell>{{ event.venue.venueName }}</TableCell>
-            </TableRow>
-          </TableBody>
+               <TableCell class="flex gap-2">
+                <Button @click="">Update</Button>
+                <Button variant="outline" @click="">Delete</Button>
+              </TableCell>
 
+             
+            </TableRow>
+
+          </TableBody>
         </Table>
       </div>
 
