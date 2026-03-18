@@ -1,8 +1,12 @@
 <template>
-    <router-view />
+    <router-view position="top-right" richColors  />
+    <Toaster/>
 </template>
 
 <script setup lang="ts">
+
+import { Toaster } from 'vue-sonner';
+import 'vue-sonner/style.css'
 
 </script>
 

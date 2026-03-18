@@ -5,7 +5,7 @@
         <h2 class="text-4xl font-bold">Events</h2>
         <p class="text-gray-500 mt-2">Manage your events and registrations</p>
       </div>
-      <Dialog v-model:open="open">
+      <Dialog v-model:open="isDialogOpen">
         <DialogTrigger>
           <Button variant="outline">+ Create Event</Button>
         </DialogTrigger>
@@ -48,7 +48,7 @@
 
           <DialogFooter>
 
-            <Button variant="outline" @click="open = false">Cancel</Button>
+            <Button variant="outline" @click="isDialogOpen = false">Cancel</Button>
             <Button @click="handleCreateEvent" :disabled="isSumitting">Save</Button>
 
           </DialogFooter>
@@ -118,6 +118,9 @@ import DialogTitle from "@/components/ui/dialog/DialogTitle.vue";
 import DialogDescription from "@/components/ui/dialog/DialogDescription.vue";
 import DialogFooter from "@/components/ui/dialog/DialogFooter.vue";
 import createEvent from "@/services/event/createEvent";
+import { toast } from 'vue-sonner'
+
+
 
 
 const searchQuery = ref('');
@@ -127,7 +130,8 @@ const isError = ref<string | null>(null)
 const page = ref<number>(1)
 const isSumitting = ref<boolean>(false)
 const submitError = ref<string | null>(null)
-const open = ref(false)
+const isDialogOpen = ref(false)
+
 
 const formCreateRequest = ref({
   eventName: '',
@@ -136,6 +140,25 @@ const formCreateRequest = ref({
   attendeesInput: ''
 })
 
+const resetCreateForm = () => {
+  formCreateRequest.value = {
+    eventName: '',
+    eventDate: '',
+    venueId: 0,
+    attendeesInput: '',
+  }
+  submitError.value = null
+}
+
+const showToast = () => {
+  toast('Event has been created', {
+    description: 'Sunday, December 03, 2023 at 9:00 AM',
+    action: {
+      label: 'Undo',
+      onClick: () => console.log('Undo'),
+    },
+  })
+}
 
 
 const handleCreateEvent = async () => {
@@ -145,10 +168,8 @@ const handleCreateEvent = async () => {
     submitError.value = null;
     const raw = formCreateRequest.value.attendeesInput;
 
-    console.log('raw input :', raw);
-    console.log('type of raw :', typeof raw);
-
-
+    // console.log('raw input :', raw);
+    // console.log('type of raw :', typeof raw);
 
     const payload: CreateEventRequest = {
       eventName: formCreateRequest.value.eventName,
@@ -164,20 +185,19 @@ const handleCreateEvent = async () => {
     console.log('created event:', rs)
 
 
-    open.value = false;
+    isDialogOpen.value = false;
+
+    resetCreateForm();
+
+    // reload data
+    page.value = 1
     await fetchEvents();
-
-    formCreateRequest.value = {
-      eventName: '',
-      eventDate: '',
-      venueId: 0,
-      attendeesInput: '',
-    }
-
+    toast.success('Create even successfully')
 
   } catch (e) {
     console.log(e);
-    submitError.value = 'Failed to create event'
+    // submitError.value = 'Failed to create event'
+    toast.error('Failed to create event')
 
   } finally {
     isSumitting.value = false;
@@ -189,11 +209,14 @@ const handleCreateEvent = async () => {
 const fetchEvents = async () => {
   try {
     isLoading.value = true;
+    isError.value = null
     events.value = await getAllEvent(page.value);
     // console.log(events);
   } catch (e) {
-    console.log('error fetch on component', e);
-    isError.value = 'Failed to load events'
+    // console.log('error fetch on component', e);
+    // isError.value = 'Failed to load events'
+    toast.error('Failed to load event')
+
   } finally {
     isLoading.value = false;
   }
