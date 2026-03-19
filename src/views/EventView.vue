@@ -110,7 +110,6 @@
                   @click="openDialogAndSelectId(event.eventId)">Delete</Button>
               </TableCell>
 
-
             </TableRow>
 
           </TableBody>
@@ -136,8 +135,22 @@
           </Dialog>
         </Table>
       </div>
+    </div>
+  </div>
+  <div class="mt-4 flex items-center justify-center gap-2">
+    <div class="flex gap-2">
+      <Button variant="outline" :disabled="page === 1" @click="page--">
+        Previous
+      </Button>
+    </div>
+    <p class="text-sm text-muted-foreground">
+      Page {{ page }} of {{ totalPages }}
+    </p>
 
-
+    <div class="flex gap-2">
+      <Button variant="outline" :disabled="page === totalPages" @click="page++">
+        Next
+      </Button>
     </div>
   </div>
 </template>
@@ -195,7 +208,9 @@ const selectedId = ref<number | null>(null)
 const isUpdate = ref<boolean>(false)
 const updateError = ref<string | null>(null);
 const selectedUpdateEventId = ref<null | number>(null);
-
+const size = ref<number>(10)
+const totalPages = ref(0)
+const totalElements = ref(0)
 
 
 
@@ -367,7 +382,7 @@ const fetchEvents = async () => {
   try {
     isLoading.value = true;
     isError.value = null
-    events.value = await getAllEvent(page.value);
+    events.value = await getAllEvent(page.value, size.value);
     // console.log(events);
   } catch (e) {
     // console.log('error fetch on component', e);
