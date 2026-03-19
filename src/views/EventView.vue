@@ -10,9 +10,9 @@
       <Dialog v-model:open="isDialogOpen">
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{{ mode === 'create'? 'Create new event': 'Update event' }}</DialogTitle>
+            <DialogTitle>{{ mode === 'create' ? 'Create new event' : 'Update event' }}</DialogTitle>
             <DialogDescription>
-                {{ mode === 'create' ? 'Add a new event here.' : 'Edit event details here.' }}
+              {{ mode === 'create' ? 'Add a new event here.' : 'Edit event details here.' }}
             </DialogDescription>
           </DialogHeader>
 
@@ -56,7 +56,8 @@
           <DialogFooter>
 
             <Button variant="outline" @click="isDialogOpen = false">Cancel</Button>
-            <Button @click="mode==='create' ? handleCreateEvent() : handleUpdateById()" :disabled="isSumitting || isUpdate"> {{ mode === 'create' ? 'Save' : 'Update' }}</Button>
+            <Button @click="mode === 'create' ? handleCreateEvent() : handleUpdateById()"
+              :disabled="isSumitting || isUpdate"> {{ mode === 'create' ? 'Save' : 'Update' }}</Button>
 
           </DialogFooter>
 
@@ -143,7 +144,7 @@
 
 <script setup lang="ts">
 
-import type { EventItem, CreateEventRequest } from "@/types/event";
+import type { EventItem, CreateEventRequest, UpdateEventRequest } from "@/types/event";
 import Table from '@/components/ui/table/Table.vue';
 import TableBody from '@/components/ui/table/TableBody.vue';
 import TableCell from '@/components/ui/table/TableCell.vue';
@@ -175,6 +176,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import deleteEventById from "@/services/event/deleteEvent";
+import updateEventById from "@/services/event/updateEvent";
 
 
 
@@ -228,7 +230,6 @@ const handleCreateEvent = async () => {
 
     // console.log('raw input :', raw);
     // console.log('type of raw :', typeof raw);
-
     const payload: CreateEventRequest = {
       eventName: form.value.eventName,
       eventDate: new Date(form.value.eventDate).toISOString(),
@@ -293,15 +294,56 @@ const openUpdateDiaLog = (event: EventItem) => {
 }
 
 
+const handleUpdateById = async () => {
+  const id = selectedUpdateEventId.value;
+  if (id === null) return;
+
+  try {
+    isUpdate.value = true;
+    updateError.value = null;
+
+    const raw = String(form.value.attendeesInput || '')
+
+    const payload: UpdateEventRequest = {
+      eventName: form.value.eventName,
+      eventDate: new Date(form.value.eventDate).toISOString(),
+      venueId: Number(form.value.venueId),
+      attendeesId: raw.
+        split(',')
+        .map(id => Number(id.trim()))
+        .filter(id => !Number.isNaN(id) && id > 0)
+
+    }
+
+    const rs = await updateEventById(id, payload)
+    console.log('updated event:', rs)
+
+    isDialogOpen.value = false
+    selectedUpdateEventId.value = null
+    resetCreateForm()
+
+    await fetchEvents()
+
+    toast.success('Event updated successfully')
+
+  } catch (e) {
+    console.log(e)
+    updateError.value = 'Failed to update event'
+    toast.error('Failed to update event')
+
+  } finally {
+    isUpdate.value = false
+  }
+
+}
+
+
+
 const openDialogAndSelectId = (id: number) => {
   if (!selectedId) return
   selectedId.value = id;
   isDialogOpenForDelete.value = true
   // console.log('id', id);
-}
-
-const handleUpdateById = async () => {
-
 }
 
 
