@@ -158,7 +158,6 @@ import { onMounted, ref, computed, watch } from 'vue';
 import getAllEvent from '@/services/event/getAllEvent';
 import formatDate from "@/services/formatDate";
 import Dialog from "@/components/ui/dialog/Dialog.vue";
-import DialogTrigger from "@/components/ui/dialog/DialogTrigger.vue";
 import DialogContent from "@/components/ui/dialog/DialogContent.vue";
 import DialogHeader from "@/components/ui/dialog/DialogHeader.vue";
 import DialogTitle from "@/components/ui/dialog/DialogTitle.vue";
@@ -193,7 +192,6 @@ const submitError = ref<string | null>(null)
 const isDialogOpen = ref(false)
 const isDialogOpenForDelete = ref(false)
 const selectedId = ref<number | null>(null)
-const isDialogOpenForUpdate = ref(false);
 const isUpdate = ref<boolean>(false)
 const updateError = ref<string | null>(null);
 const selectedUpdateEventId = ref<null | number>(null);
