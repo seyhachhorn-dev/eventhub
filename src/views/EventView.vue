@@ -96,12 +96,12 @@
               <TableCell>{{ event.eventName }}</TableCell>
               <TableCell> {{ formatDate(event.eventDate) }} </TableCell>
               <TableCell>{{ event.venue.venueName }}</TableCell>
-               <TableCell class="flex gap-2">
+              <TableCell class="flex gap-2">
                 <Button @click="">Update</Button>
                 <Button variant="outline" @click="">Delete</Button>
               </TableCell>
 
-             
+
             </TableRow>
 
           </TableBody>
@@ -137,11 +137,14 @@ import DialogDescription from "@/components/ui/dialog/DialogDescription.vue";
 import DialogFooter from "@/components/ui/dialog/DialogFooter.vue";
 import createEvent from "@/services/event/createEvent";
 import { toast } from 'vue-sonner'
+import type { VenueItem } from "@/types/venue";
+import getAllVenue from "@/services/venue/getAllVenue";
 
 
 
 
 const searchQuery = ref('');
+const venues = ref<VenueItem[]>([])
 const events = ref<EventItem[]>([])
 const isLoading = ref<boolean>(false)
 const isError = ref<string | null>(null)
@@ -235,6 +238,20 @@ const fetchEvents = async () => {
     // isError.value = 'Failed to load events'
     toast.error('Failed to load event')
 
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+
+const fetchVenue = async () => {
+  try {
+    isLoading.value = true;
+    isError.value = null;
+    venues.value = await getAllVenue(page.value);
+  } catch (e) {
+    isError.value = 'Failed to load event';
+    toast.error('Failed to load event')
   } finally {
     isLoading.value = false;
   }
