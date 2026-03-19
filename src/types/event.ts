@@ -16,5 +16,12 @@ export interface CreateEventRequest  {
   eventName: string;
   eventDate: string;
   venueId: number;
-  attendeesId: number;
+  attendeesId: number[];
+}
+
+export interface UpdateEventRequest {
+  eventName: string
+  eventDate: string
+  venueId: number
+  attendeesId: number[]
 }

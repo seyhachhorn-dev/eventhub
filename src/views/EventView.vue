@@ -5,46 +5,43 @@
         <h2 class="text-4xl font-bold">Events</h2>
         <p class="text-gray-500 mt-2">Manage your events and registrations</p>
       </div>
+      <Button variant="outline" @click="openCreateDialog">+ Create Event</Button>
+
       <Dialog v-model:open="isDialogOpen">
-        <DialogTrigger>
-          <Button variant="outline">+ Create Event</Button>
-        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create new event</DialogTitle>
-            <DialogDescription>Add a new event here.</DialogDescription>
+            <DialogTitle>{{ mode === 'create'? 'Create new event': 'Update event' }}</DialogTitle>
+            <DialogDescription>
+                {{ mode === 'create' ? 'Add a new event here.' : 'Edit event details here.' }}
+            </DialogDescription>
           </DialogHeader>
-
-
 
           <div calss="grid gap4 py-4">
             <div class="grid gap2">
               <Label for="eventName">Event Name</Label>
-              <Input id="eventName" v-model="formCreateRequest.eventName" placeholde="Enter event name" type="text" />
+              <Input id="eventName" v-model="form.eventName" placeholde="Enter event name" type="text" />
             </div>
 
             <div class="grid gap-2">
               <Label for="eventDate">Event Date</Label>
-              <Input id="eventDate" v-model="formCreateRequest.eventDate" type="datetime-local" />
+              <Input id="eventDate" v-model="form.eventDate" type="datetime-local" />
             </div>
 
 
             <div class="grid gap-2">
               <Label for="eventDate">Venue</Label>
-              <Input id="eventDate" v-model="formCreateRequest.venueId" type="number" placeholder="Enter venue id" />
+              <Input id="eventDate" v-model="form.venueId" type="string" placeholder="Enter venue id" />
             </div>
 
 
             <div class="grid gap-2">
               <Label for="eventDate">Attendees</Label>
-              <!-- <Input id="eventDate" v-model="formCreateRequest.attendeesInput" type="string"
-                placeholder="Example: 1,2,3" /> -->
               <Select>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a Venue" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="venue in venues" :key="venue.venueId" :value="venue.venueId">
+                  <SelectItem v-for="venue in venues" :key="venue.venueId" :value="String(venue.venueId)">
                     {{ venue.venueName }}
                   </SelectItem>
                 </SelectContent>
@@ -59,7 +56,7 @@
           <DialogFooter>
 
             <Button variant="outline" @click="isDialogOpen = false">Cancel</Button>
-            <Button @click="handleCreateEvent" :disabled="isSumitting">Save</Button>
+            <Button @click="mode==='create' ? handleCreateEvent() : handleUpdateById()" :disabled="isSumitting || isUpdate"> {{ mode === 'create' ? 'Save' : 'Update' }}</Button>
 
           </DialogFooter>
 
@@ -106,9 +103,10 @@
               <TableCell>{{ event.eventName }}</TableCell>
               <TableCell> {{ formatDate(event.eventDate) }} </TableCell>
               <TableCell>{{ event.venue.venueName }}</TableCell>
+              <!-- action btn -->
               <TableCell class="flex gap-2">
-                <Button @click="">Update</Button>
-                <Button variant="outline" @click="openDialogAndSelectId(event.eventId)">Delete</Button>
+                <Button @click="openUpdateDiaLog(event)">Update</Button> <Button variant="outline"
+                  @click="openDialogAndSelectId(event.eventId)">Delete</Button>
               </TableCell>
 
 
@@ -181,7 +179,7 @@ import deleteEventById from "@/services/event/deleteEvent";
 
 
 
-
+const mode = ref<'create' | 'update'>('create')
 const searchQuery = ref('');
 const venues = ref<VenueItem[]>([])
 const events = ref<EventItem[]>([])
@@ -192,11 +190,16 @@ const isSumitting = ref<boolean>(false)
 const submitError = ref<string | null>(null)
 const isDialogOpen = ref(false)
 const isDialogOpenForDelete = ref(false)
-
 const selectedId = ref<number | null>(null)
+const isDialogOpenForUpdate = ref(false);
+const isUpdate = ref<boolean>(false)
+const updateError = ref<string | null>(null);
+const selectedUpdateEventId = ref<null | number>(null);
 
 
-const formCreateRequest = ref({
+
+
+const form = ref({
   eventName: '',
   eventDate: '',
   venueId: 0,
@@ -204,7 +207,7 @@ const formCreateRequest = ref({
 })
 
 const resetCreateForm = () => {
-  formCreateRequest.value = {
+  form.value = {
     eventName: '',
     eventDate: '',
     venueId: 0,
@@ -213,15 +216,7 @@ const resetCreateForm = () => {
   submitError.value = null
 }
 
-const showToast = () => {
-  toast('Event has been created', {
-    description: 'Sunday, December 03, 2023 at 9:00 AM',
-    action: {
-      label: 'Undo',
-      onClick: () => console.log('Undo'),
-    },
-  })
-}
+
 
 
 const handleCreateEvent = async () => {
@@ -229,15 +224,15 @@ const handleCreateEvent = async () => {
   try {
     isSumitting.value = true;
     submitError.value = null;
-    const raw = formCreateRequest.value.attendeesInput;
+    const raw = form.value.attendeesInput;
 
     // console.log('raw input :', raw);
     // console.log('type of raw :', typeof raw);
 
     const payload: CreateEventRequest = {
-      eventName: formCreateRequest.value.eventName,
-      eventDate: new Date(formCreateRequest.value.eventDate).toISOString(),
-      venueId: Number(formCreateRequest.value.venueId),
+      eventName: form.value.eventName,
+      eventDate: new Date(form.value.eventDate).toISOString(),
+      venueId: Number(form.value.venueId),
       attendeesId: raw
         .split(',')
         .map(id => Number(id.trim()))
@@ -269,11 +264,43 @@ const handleCreateEvent = async () => {
 
 }
 
+const openCreateDialog = () => {
+  mode.value = 'create'
+
+  form.value = {
+    eventName: '',
+    eventDate: '',
+    venueId: 0,
+    attendeesInput: ''
+  }
+
+  isDialogOpen.value = true
+}
+
+const openUpdateDiaLog = (event: EventItem) => {
+  mode.value = 'update'
+
+  selectedUpdateEventId.value = event.eventId
+
+  form.value = {
+    eventName: event.eventName,
+    eventDate: event.eventDate.slice(0, 16),
+    venueId: event.venue.venueId,
+    attendeesInput: event.attendees?.map(a => a.attendeeId).join(',') || ''
+  }
+
+  isDialogOpen.value = true
+}
+
+
 const openDialogAndSelectId = (id: number) => {
   if (!selectedId) return
   selectedId.value = id;
   isDialogOpenForDelete.value = true
   // console.log('id', id);
+}
+
+const handleUpdateById = async () => {
 
 }
 
