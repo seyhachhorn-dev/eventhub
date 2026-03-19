@@ -137,6 +137,10 @@
       </div>
     </div>
   </div>
+  <div class="mt-1 flex items-center justify-center gap-2">
+    <div variant="outline" class="absolute right-20">Total Elements: <span class="ml-1 font-bold">{{ totalElements
+        }}</span></div>
+  </div>
   <div class="mt-4 flex items-center justify-center gap-2">
     <div class="flex gap-2">
       <Button variant="outline" :disabled="page === 1" @click="page--">
@@ -157,7 +161,7 @@
 
 <script setup lang="ts">
 
-import type { EventItem, CreateEventRequest, UpdateEventRequest } from "@/types/event";
+import type { EventItem, CreateEventRequest } from "@/types/event";
 import Table from '@/components/ui/table/Table.vue';
 import TableBody from '@/components/ui/table/TableBody.vue';
 import TableCell from '@/components/ui/table/TableCell.vue';
@@ -317,7 +321,7 @@ const handleUpdateById = async () => {
 
     const raw = String(form.value.attendeesInput || '')
 
-    const payload: UpdateEventRequest = {
+    const payload: CreateEventRequest = {
       eventName: form.value.eventName,
       eventDate: new Date(form.value.eventDate).toISOString(),
       venueId: Number(form.value.venueId),
@@ -382,8 +386,12 @@ const fetchEvents = async () => {
   try {
     isLoading.value = true;
     isError.value = null
-    events.value = await getAllEvent(page.value, size.value);
-    // console.log(events);
+    const data = await getAllEvent(page.value, size.value);
+    events.value = data.payload;
+    totalPages.value = data.pagination.totalPages
+    totalElements.value = data.pagination.totalElements;
+
+    // console.log('event data:',events.value);
   } catch (e) {
     // console.log('error fetch on component', e);
     // isError.value = 'Failed to load events'
@@ -404,7 +412,7 @@ const fetchVenue = async () => {
     isError.value = 'Failed to load event';
     toast.error('Failed to load event')
   } finally {
-    isLoading.value = false;
+    isLoading.value = false;  
   }
 }
 

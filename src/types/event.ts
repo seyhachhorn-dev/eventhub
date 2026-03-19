@@ -19,9 +19,20 @@ export interface CreateEventRequest  {
   attendeesId: number[];
 }
 
-export interface UpdateEventRequest {
-  eventName: string
-  eventDate: string
-  venueId: number
-  attendeesId: number[]
+
+
+
+export interface EventPagination {
+  currentPage: number
+  pageSize: number
+  totalElements: number
+  totalPages: number
+}
+
+export interface EventListResponse {
+  message: string
+  payload: EventItem[]
+  status: string
+  pagination: EventPagination
+  timestamp: string
 }
