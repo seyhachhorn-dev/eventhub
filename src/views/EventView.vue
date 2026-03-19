@@ -37,8 +37,18 @@
 
             <div class="grid gap-2">
               <Label for="eventDate">Attendees</Label>
-              <Input id="eventDate" v-model="formCreateRequest.attendeesInput" type="string"
-                placeholder="Example: 1,2,3" />
+              <!-- <Input id="eventDate" v-model="formCreateRequest.attendeesInput" type="string"
+                placeholder="Example: 1,2,3" /> -->
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a Venue" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="venue in venues" :key="venue.venueId" :value="venue.venueId">
+                    {{ venue.venueName }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -98,13 +108,33 @@
               <TableCell>{{ event.venue.venueName }}</TableCell>
               <TableCell class="flex gap-2">
                 <Button @click="">Update</Button>
-                <Button variant="outline" @click="">Delete</Button>
+                <Button variant="outline" @click="openDialogAndSelectId(event.eventId)">Delete</Button>
               </TableCell>
 
 
             </TableRow>
 
           </TableBody>
+
+          <Dialog v-model:open="isDialogOpenForDelete">
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Event</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this event? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogFooter>
+                <Button variant="outline" @click="isDialogOpenForDelete = false">
+                  Cancel
+                </Button>
+                <Button variant="destructive" @click="handleDeleteEventById">
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </Table>
       </div>
 
@@ -139,6 +169,15 @@ import createEvent from "@/services/event/createEvent";
 import { toast } from 'vue-sonner'
 import type { VenueItem } from "@/types/venue";
 import getAllVenue from "@/services/venue/getAllVenue";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import deleteEventById from "@/services/event/deleteEvent";
+
 
 
 
@@ -152,6 +191,9 @@ const page = ref<number>(1)
 const isSumitting = ref<boolean>(false)
 const submitError = ref<string | null>(null)
 const isDialogOpen = ref(false)
+const isDialogOpenForDelete = ref(false)
+
+const selectedId = ref<number | null>(null)
 
 
 const formCreateRequest = ref({
@@ -227,6 +269,33 @@ const handleCreateEvent = async () => {
 
 }
 
+const openDialogAndSelectId = (id: number) => {
+  if (!selectedId) return
+  selectedId.value = id;
+  isDialogOpenForDelete.value = true
+  // console.log('id', id);
+
+}
+
+
+const handleDeleteEventById = async () => {
+  const id = selectedId.value;
+  if (id === null) return
+  try {
+    await deleteEventById(id);
+    toast.success('Event deleted successfully')
+    isDialogOpenForDelete.value = false;
+    selectedId.value = null;
+    //reload
+    await fetchEvents();
+
+  } catch (e) {
+    isError.value = 'fail to delete'
+    toast.error('fail to delete this event')
+  }
+
+}
+
 const fetchEvents = async () => {
   try {
     isLoading.value = true;
@@ -271,6 +340,7 @@ watch(page, fetchEvents)
 
 onMounted(() => {
   fetchEvents();
+  fetchVenue();
 })
 
 </script>
